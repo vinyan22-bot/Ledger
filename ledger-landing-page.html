@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LEDGER — The Complete Finance OS for Notion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#10140F;
+    --ink-2:#161C13;
+    --paper:#F3EEDD;
+    --paper-dim:#D9D3BC;
+    --green:#1F4D3A;
+    --green-bright:#4C9270;
+    --gold:#C9A24B;
+    --red:#8C3B2E;
+    --line: rgba(243,238,221,0.14);
+    --line-strong: rgba(243,238,221,0.28);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--ink);
+    color:var(--paper);
+    font-family:'Inter', sans-serif;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .mono{font-family:'JetBrains Mono', monospace;}
+  .serif{font-family:'Newsreader', serif;}
+  a{color:inherit; text-decoration:none;}
+  img,svg{display:block;}
+
+  .wrap{max-width:1080px; margin:0 auto; padding:0 24px;}
+
+  /* ---------- NAV ---------- */
+  nav{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:22px 24px;
+    border-bottom:1px solid var(--line);
+  }
+  .brand{
+    font-family:'Newsreader', serif;
+    font-style:italic;
+    font-size:22px;
+    letter-spacing:0.02em;
+    color:var(--paper);
+  }
+  .brand b{font-style:normal; font-weight:600; color:var(--gold);}
+  nav .cta-small{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    border:1px solid var(--line-strong);
+    padding:9px 16px;
+    border-radius:2px;
+    transition:border-color .2s, background .2s;
+  }
+  nav .cta-small:hover{border-color:var(--gold); background:rgba(201,162,75,0.08);}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    padding:72px 0 40px;
+    display:grid;
+    grid-template-columns:1fr;
+    gap:48px;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.16em;
+    text-transform:uppercase;
+    color:var(--green-bright);
+    margin-bottom:18px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow::before{content:''; width:22px; height:1px; background:var(--green-bright); display:inline-block;}
+  h1{
+    font-family:'Newsreader', serif;
+    font-weight:500;
+    font-size:clamp(38px, 6vw, 64px);
+    line-height:1.06;
+    letter-spacing:-0.01em;
+    max-width:16ch;
+  }
+  h1 em{font-style:italic; color:var(--gold); font-weight:400;}
+  .hero-sub{
+    margin-top:22px;
+    font-size:17px;
+    color:var(--paper-dim);
+    max-width:46ch;
+  }
+  .hero-ctas{
+    margin-top:32px;
+    display:flex; gap:14px; flex-wrap:wrap;
+  }
+  .btn{
+    font-family:'JetBrains Mono', monospace;
+    font-size:13px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    padding:14px 26px;
+    border-radius:2px;
+    display:inline-block;
+    transition:transform .15s ease, background .2s ease;
+  }
+  .btn-primary{background:var(--gold); color:var(--ink); font-weight:600;}
+  .btn-primary:hover{transform:translateY(-2px);}
+  .btn-ghost{border:1px solid var(--line-strong); color:var(--paper);}
+  .btn-ghost:hover{border-color:var(--paper);}
+
+  /* ---------- LEDGER ANIMATION ---------- */
+  .ledger-sheet{
+    background:var(--paper);
+    color:var(--ink);
+    border-radius:4px;
+    padding:26px 22px 20px;
+    box-shadow:0 40px 80px -30px rgba(0,0,0,0.6);
+    position:relative;
+    overflow:hidden;
+  }
+  .ledger-sheet::before{
+    content:'';
+    position:absolute; inset:0;
+    background-image: repeating-linear-gradient(rgba(31,77,58,0.06) 0 1px, transparent 1px 38px);
+    pointer-events:none;
+  }
+  .ledger-head{
+    display:flex; justify-content:space-between; align-items:baseline;
+    margin-bottom:14px; position:relative;
+  }
+  .ledger-head .title{font-family:'Newsreader', serif; font-style:italic; font-size:19px; color:var(--green);}
+  .ledger-head .sub{font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--green); opacity:0.7;}
+  table{width:100%; border-collapse:collapse; position:relative;}
+  thead th{
+    font-family:'JetBrains Mono', monospace;
+    font-size:10px; letter-spacing:0.08em; text-transform:uppercase;
+    color:var(--green); opacity:0.75;
+    text-align:left;
+    padding:6px 6px 10px;
+    border-bottom:1px solid rgba(31,77,58,0.35);
+  }
+  thead th.num{text-align:right;}
+  tbody td{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12.5px;
+    padding:9px 6px;
+    border-bottom:1px solid rgba(31,77,58,0.14);
+    opacity:0;
+    transform:translateY(4px);
+    animation:rowIn 0.5s ease forwards;
+  }
+  tbody td.num{text-align:right;}
+  tbody td.debit{color:var(--red);}
+  tbody td.credit{color:var(--green);}
+  tbody td.balance{font-weight:700; color:var(--ink);}
+  @keyframes rowIn{to{opacity:1; transform:translateY(0);}}
+  .ledger-foot{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-top:14px; padding-top:14px;
+    border-top:1px solid rgba(31,77,58,0.35);
+  }
+  .ledger-foot .label{font-family:'JetBrains Mono', monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:var(--green); opacity:0.75;}
+  .ledger-foot .amount{font-family:'JetBrains Mono', monospace; font-weight:700; font-size:20px; color:var(--green);}
+
+  /* ---------- SECTION SHARED ---------- */
+  section{padding:88px 0;}
+  .section-label{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px; letter-spacing:0.16em; text-transform:uppercase;
+    color:var(--green-bright); margin-bottom:16px;
+  }
+  h2{
+    font-family:'Newsreader', serif; font-weight:500;
+    font-size:clamp(28px, 4vw, 42px);
+    max-width:20ch; line-height:1.15;
+  }
+  .lede{color:var(--paper-dim); max-width:56ch; margin-top:16px; font-size:16px;}
+
+  /* ---------- PHILOSOPHY ---------- */
+  .philosophy{border-top:1px solid var(--line); border-bottom:1px solid var(--line);}
+  .philosophy-grid{
+    display:grid; grid-template-columns:1fr; gap:32px; margin-top:40px;
+  }
+  .phil-item{padding-top:20px; border-top:1px solid var(--line-strong);}
+  .phil-item .n{font-family:'JetBrains Mono', monospace; color:var(--gold); font-size:12px; margin-bottom:10px;}
+  .phil-item h3{font-family:'Newsreader', serif; font-weight:500; font-size:20px; margin-bottom:8px;}
+  .phil-item p{color:var(--paper-dim); font-size:14.5px;}
+
+  /* ---------- TIERS / PRICING ---------- */
+  .tiers{
+    display:grid; grid-template-columns:1fr; gap:20px; margin-top:48px;
+  }
+  .tier{
+    background:var(--ink-2);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:32px 28px;
+    position:relative;
+    display:flex; flex-direction:column;
+  }
+  .tier.featured{border-color:var(--gold); background:linear-gradient(180deg, rgba(201,162,75,0.06), transparent 40%), var(--ink-2);}
+  .tier .stamp{
+    position:absolute; top:24px; right:24px;
+    width:56px; height:56px; border-radius:50%;
+    border:1.5px dashed var(--gold);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'JetBrains Mono', monospace; font-size:9px; letter-spacing:0.05em;
+    color:var(--gold); text-align:center; transform:rotate(-12deg);
+    line-height:1.2;
+  }
+  .tier-name{font-family:'JetBrains Mono', monospace; font-size:12px; letter-spacing:0.1em; text-transform:uppercase; color:var(--green-bright); margin-bottom:6px;}
+  .tier.featured .tier-name{color:var(--gold);}
+  .tier-title{font-family:'Newsreader', serif; font-style:italic; font-size:26px; margin-bottom:14px;}
+  .tier-price{font-family:'JetBrains Mono', monospace; font-size:36px; font-weight:700; margin-bottom:4px;}
+  .tier-price span{font-size:14px; font-weight:400; color:var(--paper-dim);}
+  .tier-desc{color:var(--paper-dim); font-size:13.5px; margin-bottom:22px;}
+  .tier-list{list-style:none; margin-bottom:26px; flex-grow:1;}
+  .tier-list li{
+    font-size:13.5px; padding:9px 0; border-top:1px solid var(--line);
+    display:flex; gap:10px; align-items:flex-start;
+  }
+  .tier-list li:first-child{border-top:none;}
+  .tier-list li::before{content:'—'; color:var(--green-bright); flex-shrink:0;}
+  .tier.featured .tier-list li::before{color:var(--gold);}
+  .tier .btn{width:100%; text-align:center;}
+
+  /* ---------- FAQ ---------- */
+  .faq{border-top:1px solid var(--line);}
+  .faq-item{padding:22px 0; border-bottom:1px solid var(--line);}
+  .faq-item h4{font-family:'Newsreader', serif; font-size:18px; font-weight:500; margin-bottom:8px;}
+  .faq-item p{color:var(--paper-dim); font-size:14.5px; max-width:60ch;}
+
+  /* ---------- CAPTURE / FOOTER ---------- */
+  .capture{
+    background:var(--paper); color:var(--ink);
+    border-radius:6px; padding:44px 32px; text-align:left;
+    margin-top:8px;
+  }
+  .capture h3{font-family:'Newsreader', serif; font-style:italic; font-size:26px; margin-bottom:8px;}
+  .capture p{color:var(--green); font-size:14px; margin-bottom:20px; max-width:44ch;}
+  .capture-form{display:flex; gap:10px; flex-wrap:wrap;}
+  .capture-form input[type=email]{
+    flex:1; min-width:220px;
+    padding:13px 14px; border:1px solid rgba(31,77,58,0.3); border-radius:2px;
+    font-family:'JetBrains Mono', monospace; font-size:13px; background:#fff;
+  }
+  .capture-form button{
+    font-family:'JetBrains Mono', monospace; font-size:12px; letter-spacing:0.06em; text-transform:uppercase;
+    background:var(--green); color:var(--paper); border:none; padding:0 22px; border-radius:2px; cursor:pointer;
+  }
+  footer{padding:40px 0; border-top:1px solid var(--line); text-align:center;}
+  footer p{font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--paper-dim); letter-spacing:0.04em;}
+
+  @media(min-width:860px){
+    .hero{grid-template-columns:1fr 1fr; align-items:center; padding:96px 0 60px;}
+    .philosophy-grid{grid-template-columns:repeat(3, 1fr);}
+    .tiers{grid-template-columns:repeat(3, 1fr);}
+    .tier.featured{transform:translateY(-10px);}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="brand">LEDGER<b>.</b></div>
+  <a href="#pricing" class="cta-small">Get the template</a>
+</nav>
+
+<header class="hero wrap">
+  <div>
+    <div class="eyebrow">A Notion Finance OS</div>
+    <h1>Every dollar,<br><em>accounted for.</em></h1>
+    <p class="hero-sub">Budgeting apps get abandoned in three weeks. A ledger you actually keep doesn't. Track spending, pay off debt, hit savings goals, and watch your net worth climb — in the tool you already have open.</p>
+    <div class="hero-ctas">
+      <a href="#pricing" class="btn btn-primary">See the tiers</a>
+      <a href="#inside" class="btn btn-ghost">What's inside</a>
+    </div>
+  </div>
+
+  <div class="ledger-sheet">
+    <div class="ledger-head">
+      <span class="title">General Ledger</span>
+      <span class="sub">JUL 2026</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th><th>Description</th><th class="num">Debit</th><th class="num">Credit</th><th class="num">Balance</th>
+        </tr>
+      </thead>
+      <tbody id="ledgerRows"></tbody>
+    </table>
+    <div class="ledger-foot">
+      <span class="label">Running Balance</span>
+      <span class="amount" id="ledgerTotal">$0.00</span>
+    </div>
+  </div>
+</header>
+
+<section class="philosophy wrap" id="inside">
+  <div class="section-label">Why a ledger</div>
+  <h2>Budgeting apps show you the past. A ledger builds the habit.</h2>
+  <p class="lede">Every entry you type by hand is a decision you actually see. LEDGER borrows the oldest trick in bookkeeping — the running balance — and puts it inside Notion, next to your goals, your debt, and your net worth.</p>
+
+  <div class="philosophy-grid">
+    <div class="phil-item">
+      <div class="n mono">01</div>
+      <h3>One page, whole picture</h3>
+      <p>Budget, debt, savings, and net worth live in one dashboard — not four disconnected apps.</p>
+    </div>
+    <div class="phil-item">
+      <div class="n mono">02</div>
+      <h3>Formulas do the math</h3>
+      <p>Remaining budget, months to debt-free, monthly savings needed — calculated automatically as you enter transactions.</p>
+    </div>
+    <div class="phil-item">
+      <div class="n mono">03</div>
+      <h3>Built to grow with you</h3>
+      <p>Start with the core ledger. Add debt payoff and net worth when you're ready. Add investing when it's time.</p>
+    </div>
+  </div>
+</section>
+
+<section class="wrap" id="pricing">
+  <div class="section-label">Choose your ledger</div>
+  <h2>Three tiers. Start where your finances actually are.</h2>
+
+  <div class="tiers">
+    <div class="tier">
+      <div class="tier-name">Basic</div>
+      <div class="tier-title">The Ledger</div>
+      <div class="tier-price">$37</div>
+      <p class="tier-desc">The core system. Everything you need to see where money actually goes.</p>
+      <ul class="tier-list">
+        <li>Transactions database with running balance</li>
+        <li>Monthly budget by category</li>
+        <li>Auto-calculated status (under / near / over)</li>
+        <li>Monthly review template</li>
+      </ul>
+      <a href="https://vinyan.gumroad.com/l/ozhfer" class="btn btn-ghost">Get Basic</a>
+    </div>
+
+    <div class="tier featured">
+      <div class="stamp">MOST<br>CHOSEN</div>
+      <div class="tier-name">Pro</div>
+      <div class="tier-title">The Full Ledger</div>
+      <div class="tier-price">$67</div>
+      <p class="tier-desc">For paying down debt and building savings at the same time.</p>
+      <ul class="tier-list">
+        <li>Everything in Basic</li>
+        <li>Debt payoff tracker — snowball or avalanche</li>
+        <li>Savings goals with monthly targets</li>
+        <li>Bills & subscriptions tracker</li>
+        <li>Net worth tracker with monthly snapshots</li>
+      </ul>
+      <a href="https://vinyan.gumroad.com/l/oluny" class="btn btn-primary">Get Pro</a>
+    </div>
+
+    <div class="tier">
+      <div class="tier-name">Bundle</div>
+      <div class="tier-title">Master Ledger</div>
+      <div class="tier-price">$97</div>
+      <p class="tier-desc">The complete finance OS, plus the workbook that puts it into practice.</p>
+      <ul class="tier-list">
+        <li>Everything in Pro</li>
+        <li>Investment portfolio tracker</li>
+        <li>90-Day Financial Reset workbook</li>
+        <li>Annual financial review dashboard</li>
+        <li>Bonus: Money Mindset PDF guide</li>
+        <li>Lifetime updates</li>
+      </ul>
+      <a href="https://vinyan.gumroad.com/l/ihayh" class="btn btn-ghost">Get the Bundle</a>
+    </div>
+  </div>
+</section>
+
+<section class="faq wrap">
+  <div class="section-label">Before you buy</div>
+  <h2>A few things worth knowing</h2>
+  <div style="margin-top:24px;">
+    <div class="faq-item">
+      <h4>Do I need the paid version of Notion?</h4>
+      <p>No. LEDGER runs fully on Notion's free plan.</p>
+    </div>
+    <div class="faq-item">
+      <h4>Can I upgrade tiers later?</h4>
+      <p>Yes — buy the difference on Gumroad and duplicate the added databases into your existing workspace.</p>
+    </div>
+    <div class="faq-item">
+      <h4>Is this connected to my bank?</h4>
+      <p>No. LEDGER is manual-entry by design — the act of logging each transaction is what builds the habit.</p>
+    </div>
+    <div class="faq-item">
+      <h4>What do I actually receive?</h4>
+      <p>A Notion duplicate link, delivered instantly after purchase. The Bundle also includes a PDF download.</p>
+    </div>
+  </div>
+</section>
+
+<section class="wrap">
+  <div class="capture">
+    <h3>Not ready yet?</h3>
+    <p>Get a free mini budget tracker and first look at new LEDGER modules.</p>
+    <form class="capture-form" action="https://YOUR-MAILCHIMP-DOMAIN.list-manage.com/subscribe/post?u=YOUR_U&id=YOUR_ID" method="POST" target="_blank">
+      <input type="email" name="EMAIL" placeholder="you@email.com" required>
+      <button type="submit">Send it to me</button>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <p class="mono">LEDGER — A VINYAN STUDIO PRODUCT</p>
+</footer>
+
+<script>
+  const rows = [
+    { date:'07/01', desc:'Paycheck', debit:'', credit:'2,450.00', balance:'2,450.00' },
+    { date:'07/02', desc:'Rent', debit:'1,200.00', credit:'', balance:'1,250.00' },
+    { date:'07/04', desc:'Groceries', debit:'86.40', credit:'', balance:'1,163.60' },
+    { date:'07/06', desc:'Debt Payment', debit:'150.00', credit:'', balance:'1,013.60' },
+    { date:'07/09', desc:'Savings Transfer', debit:'200.00', credit:'', balance:'813.60' },
+  ];
+  const tbody = document.getElementById('ledgerRows');
+  const totalEl = document.getElementById('ledgerTotal');
+  let delay = 0.15;
+  rows.forEach((r) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="animation-delay:${delay}s">${r.date}</td>
+      <td style="animation-delay:${delay}s">${r.desc}</td>
+      <td class="num debit" style="animation-delay:${delay}s">${r.debit ? '$'+r.debit : ''}</td>
+      <td class="num credit" style="animation-delay:${delay}s">${r.credit ? '$'+r.credit : ''}</td>
+      <td class="num balance" style="animation-delay:${delay}s">$${r.balance}</td>
+    `;
+    tbody.appendChild(tr);
+    delay += 0.18;
+  });
+  // animate total count-up to final balance
+  const finalBalance = 813.60;
+  let current = 0;
+  const duration = rows.length * 180 + 400;
+  const steps = 40;
+  const increment = finalBalance / steps;
+  let step = 0;
+  setTimeout(() => {
+    const interval = setInterval(() => {
+      step++;
+      current = Math.min(finalBalance, increment * step);
+      totalEl.textContent = '$' + current.toFixed(2);
+      if (step >= steps) clearInterval(interval);
+    }, duration / steps);
+  }, 300);
+</script>
+
+</body>
+</html>
